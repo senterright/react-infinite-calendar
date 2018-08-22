@@ -1,5 +1,5 @@
-import React, {Children, PureComponent} from 'react';
-import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import React, { Children, PureComponent } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import classNames from 'classnames';
 import styles from './Slider.scss';
 import transition from './transition.scss';
@@ -9,7 +9,7 @@ const DIRECTIONS = {
   RIGHT: 1,
 };
 
-const Arrow = ({direction, onClick}) => (
+const Arrow = ({ direction, onClick }) => (
   <div
     className={classNames(styles.arrow, {
       [styles.arrowLeft]: direction === DIRECTIONS.LEFT,
@@ -29,7 +29,7 @@ const Arrow = ({direction, onClick}) => (
 
 export default class Slider extends PureComponent {
   handleClick = (direction) => {
-    let {children, index, onChange} = this.props;
+    let { children, index, onChange } = this.props;
 
     switch (direction) {
       case DIRECTIONS.LEFT:
@@ -45,33 +45,35 @@ export default class Slider extends PureComponent {
     onChange(index);
   }
   render() {
-    const {children, index} = this.props;
+    const { children, index } = this.props;
 
     return (
       <div className={styles.root}>
         {index !== 0 &&
           <Arrow onClick={this.handleClick} direction={DIRECTIONS.LEFT} />
         }
-        <CSSTransitionGroup
+        <TransitionGroup
           className={styles.wrapper}
           component='div'
           style={{
             transform: `translate3d(-${100 * index}%, 0, 0)`,
           }}
-          transitionName={transition}
-          transitionEnterTimeout={300}
-          transitionLeaveTimeout={300}
         >
           {Children.map(children, (child, i) => (
-            <div
-              key={i}
-              className={styles.slide}
-              style={{transform: `translateX(${100 * i}%)`}}
+            <CSSTransition 
+              classNames={transition}
+              timeout={{ enter: 300, exit: 300 }}
             >
-              {child}
-            </div>
+              <div
+                key={i}
+                className={styles.slide}
+                style={{ transform: `translateX(${100 * i}%)` }}
+              >
+                {child}
+              </div>
+            </CSSTransition>
           ))}
-        </CSSTransitionGroup>
+        </TransitionGroup>
         {index !== children.length - 1 &&
           <Arrow onClick={this.handleClick} direction={DIRECTIONS.RIGHT} />
         }

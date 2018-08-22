@@ -1,5 +1,5 @@
 import React from 'react';
-import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import classNames from 'classnames';
 import parse from 'date-fns/parse';
 import format from 'date-fns/format';
@@ -9,7 +9,7 @@ import animation from './Animation.scss';
 export default function defaultSelectionRenderer(value, {
   display,
   key,
-  locale: {locale},
+  locale: { locale },
   dateFormat,
   onYearClick,
   scrollToDate,
@@ -39,9 +39,9 @@ export default function defaultSelectionRenderer(value, {
       },
       item: 'day',
       title: display === 'days'
-        ? `Scroll to ${format(date, dateFormat, {locale})}`
+        ? `Scroll to ${format(date, dateFormat, { locale })}`
         : null,
-      value: format(date, dateFormat, {locale}),
+      value: format(date, dateFormat, { locale }),
     },
   ];
 
@@ -49,36 +49,38 @@ export default function defaultSelectionRenderer(value, {
     <div
       key={key}
       className={styles.wrapper}
-      aria-label={format(date, dateFormat + ' YYYY', {locale})}
+      aria-label={format(date, dateFormat + ' YYYY', { locale })}
     >
-      {values.map(({handleClick, item, key, value, active, title}) => {
-        return (
-          <div
-            key={item}
-            className={classNames(styles.dateWrapper, styles[item], {
-              [styles.active]: active,
-            })}
-            title={title}
-          >
-            <CSSTransitionGroup
-              transitionName={animation}
-              transitionEnterTimeout={250}
-              transitionLeaveTimeout={250}
-              transitionEnter={shouldAnimate}
-              transitionLeave={shouldAnimate}
+      <TransitionGroup>
+        {values.map(({ handleClick, item, key, value, active, title }) => {
+          return (
+            <CSSTransition
+              key={item}
+              classNames={animation}
+              timeout={{ enter: 250, exit: 250 }}
+              enter={shouldAnimate}
+              exit={shouldAnimate}
             >
-              <span
-                key={`${item}-${value}`}
-                className={styles.date}
-                aria-hidden={true}
-                onClick={handleClick}
+              <div
+                key={item}
+                className={classNames(styles.dateWrapper, styles[item], {
+                  [styles.active]: active,
+                })}
+                title={title}
               >
-                {value}
-              </span>
-            </CSSTransitionGroup>
-          </div>
-        );
-      })}
+                <span
+                  key={`${item}-${value}`}
+                  className={styles.date}
+                  aria-hidden={true}
+                  onClick={handleClick}
+                >
+                  {value}
+                </span>
+              </div>
+            </CSSTransition>
+          );
+        })}
+      </TransitionGroup>
     </div>
   );
 }
